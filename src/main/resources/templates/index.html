@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Tasks</title>
+    <link href="/style/style.css" rel="stylesheet">
+</head>
+<body th:object="${filter}">
+<table>
+    <thead>
+    <tr>
+        <th>
+            <a th:href="@{'/page' + '?pageNo=' + *{pageNo} + '&amp;sortField=ID&amp;sortDirection=' + ${expand} + '&amp;pageSize=' + *{pageSize}}">ID</a>
+        </th>
+        <th>
+            <a th:href="@{'/page' + '?pageNo=' + *{pageNo} + '&amp;sortField=Description&amp;sortDirection=' + ${expand} + '&amp;pageSize=' + *{pageSize}}">Description</a>
+        </th>
+        <th>
+            <a th:href="@{'/page' + '?pageNo=' + *{pageNo} + '&amp;sortField=Status&amp;sortDirection=' + ${expand} + '&amp;pageSize=' + *{pageSize}}">Status</a>
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="task : ${page.getContent()}">
+        <form action="/update" method="post">
+            <input type="hidden" th:field="*{pageNo}">
+            <input type="hidden" th:field="*{pageSize}">
+            <input type="hidden" th:field="*{sortDirection}">
+            <input type="hidden" th:field="*{sortField}">
+            <td>
+                <label th:text="${task.getId()}"></label>
+                <input type="hidden" name="id" th:value="${task.getId()}">
+            </td>
+            <td>
+                <input type="text" name="description" th:value="${task.getDescription()}">
+            </td>
+            <td><select name="status" >
+                <option th:each="status : ${T(ru.zakharov.domain.Status).values()}"
+                        th:value="${status}"
+                        th:text="${status}"
+                        th:selected="${status == task.getStatus()}">
+                </option>
+            </select>
+            </td>
+            <td>
+                <button type="submit">Update</button>
+            </td>
+        </form>
+        <td>
+            <form method="post" action="/delete">
+                <input type="hidden" th:field="*{pageNo}">
+                <input type="hidden" th:field="*{pageSize}">
+                <input type="hidden" th:field="*{sortDirection}">
+                <input type="hidden" th:field="*{sortField}">
+                <input type="hidden" name="id" th:value="${task.getId()}">
+
+                <button>Delete</button>
+            </form>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3">Add new task</td>
+    </tr>
+    <tr>
+        <td>-</td>
+        <form action="/" method="post">
+            <input type="hidden" th:field="*{pageNo}">
+            <input type="hidden" th:field="*{pageSize}">
+            <input type="hidden" th:field="*{sortDirection}">
+            <input type="hidden" th:field="*{sortField}">
+
+            <td>
+                <input type="text" th:field="${newTask.description}">
+            </td>
+
+            <td><select th:field="${newTask.status}" class="form-control">
+                <option th:each="status : ${T(ru.zakharov.domain.Status).values()}"
+                        th:value="${status}"
+                        th:text="${status}">
+                </option>
+            </select>
+            </td>
+
+            <td>
+                <button>Save</button>
+            </td>
+        </form>
+    </tr>
+    </tbody>
+</table>
+
+<h2>
+    <button th:if="${page.getTotalPages() > 0}" th:each="pageNumber : ${#numbers.sequence(1, page.getTotalPages())}" class="button_page">
+        <a th:if="${pageNumber != filter.pageNo()}"
+           th:href="@{'/page' + '?pageNo=' + ${pageNumber} + '&amp;sortField=' + *{sortField} + '&amp;sortDirection=' + *{sortDirection} + '&amp;pageSize=' + *{pageSize}}"
+           th:text="${pageNumber}"></a>
+        <span th:if="${pageNumber == filter.pageNo()}" th:text="${pageNumber}" class="active_page"></span>
+    </button>
+</h2>
+</body>
+</html>
